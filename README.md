@@ -4,7 +4,7 @@ Added custom modifications to run with affnist dataset
 
 # Input data
 
-`../affMNIST_data/`
+`../affNIST_data/`
 
 # Obs:
 
