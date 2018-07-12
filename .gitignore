@@ -1,0 +1,13 @@
+*__pycache__
+data*
+checkpoint_dir/
+.ropeproject
+logdir*
+
+*.swp
+*.swo
+
+results*
+
+*.pyc
+
