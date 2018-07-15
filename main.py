@@ -12,6 +12,7 @@ from capsNet import CapsNet
 
 RESULTS_DIR = cfg.results + '_' + cfg.centered + '_centered_' + cfg.peppered + '_peppered'
 CHECKPOINT_DIR = cfg.checkpoint_dir + '_' + cfg.centered + '_centered_' + cfg.peppered + '_peppered'
+LOG_DIR = cfg.logdir + '_' + cfg.centered + '_centered_' + cgf.peppered + '_peppered'
 
 def save_to():
     if not os.path.exists(RESULTS_DIR):
@@ -51,8 +52,8 @@ def prepare_output_dir():
     if os.path.exists(CHECKPOINT_DIR):
         shutil.rmtree(CHECKPOINT_DIR, CHECKPOINT_DIR + datetime.now().isoformat())
 
-    if os.path.exists(cfg.logdir):
-        shutil.rmtree(cfg.logdir)
+    if os.path.exists(LOG_DIR):
+        shutil.rmtree(LOG_DIR)
 
 
 def train(model, session):
@@ -143,7 +144,7 @@ def main(_):
                                                     save_steps=cfg.save_checkpoint_steps,
                                                     saver=saver),
                        tf.train.SummarySaverHook(save_steps=cfg.train_sum_freq,
-                                                 output_dir=cfg.logdir,
+                                                 output_dir=LOG_DIR,
                                                  summary_op=model.train_summary)],
             )
             train(model, session)
