@@ -92,13 +92,13 @@ class CapsLayer(object):
                     # b_IJ: [batch_size, num_caps_l, num_caps_l_plus_1, 1, 1],
                     # about the reason of using 'batch_size', see issue #21
                     b_IJ = tf.constant(np.zeros([cfg.batch_size, input.shape[1].value, self.num_outputs, 1, 1], dtype=np.float32))
-                    capsules = routing(self.input, b_IJ)
+                    capsules = routing(self, self.input, b_IJ)
                     self.capsules = tf.squeeze(capsules, axis=1)
 
             return(self.capsules)
 
 
-def routing(input, b_IJ):
+def routing(self, input, b_IJ):
     ''' The routing algorithm.
 
     Args:

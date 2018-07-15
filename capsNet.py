@@ -49,14 +49,14 @@ class CapsNet(object):
 
         # Primary Capsules layer, return [batch_size, 1152, 8, 1]
         with tf.variable_scope('PrimaryCaps_layer'):
-            primaryCaps = CapsLayer(num_outputs=10, vec_len=8, with_routing=False, layer_type='CONV')
-            self.caps1 = primaryCaps(self.conv1, kernel_size=9, stride=2)
+            self.primaryCaps = CapsLayer(num_outputs=10, vec_len=8, with_routing=False, layer_type='CONV')
+            self.caps1 = self.primaryCaps(self.conv1, kernel_size=9, stride=2)
             assert self.caps1.get_shape() == [cfg.batch_size, 1440, 8, 1]
 
         # DigitCaps layer, return [batch_size, 10, 16, 1]
         with tf.variable_scope('DigitCaps_layer'):
-            digitCaps = CapsLayer(num_outputs=10, vec_len=16, with_routing=True, layer_type='FC')
-            self.caps2 = digitCaps(self.caps1)
+            self.digitCaps = CapsLayer(num_outputs=10, vec_len=16, with_routing=True, layer_type='FC')
+            self.caps2 = self.digitCaps(self.caps1)
 
         # Decoder structure in Fig. 2
         # 1. Do masking, how:
@@ -138,18 +138,22 @@ class CapsNet(object):
 
     # Summary
     def _summary(self):
+        '''
+        The reason all the sumaries are defined and merged here is because
+        the _summary method is not called every step, so this is more efficient
+        '''
         tf.summary.histogram('Conv1_layer/conv1', self.conv1)
-        tf.summary.histogram('PrimaryCaps_layer/unsquashed_capsules', self.caps1.unsquashed_capsules)
-        tf.summary.histogram('PrimaryCaps_layer/capsules', self.caps1.capsules)
+        tf.summary.histogram('PrimaryCaps_layer/unsquashed_capsules', self.primaryCaps.unsquashed_capsules)
+        tf.summary.histogram('PrimaryCaps_layer/capsules', self.primaryCaps.capsules)
 
-        tf.summary.histogram('DigitCaps_layer/W', self.caps2.W)
-        tf.summary.histogram('DigitCaps_layer/biases', self.caps2.biases)
-        tf.summary.histogram('DigitCaps_layer/u_hat', self.caps2.u_hat)
-        tf.summary.histogram('DigitCaps_layer/c_IJ', self.caps2.c_IJ)
-        tf.summary.histogram('DigitCaps_layer/s_J', self.caps2.s_J)
-        tf.summary.histogram('DigitCaps_layer/v_J', self.caps2.v_J)
-        tf.summary.histogram('DigitCaps_layer/u_produce_v', self.caps2.u_produce_v)
-        tf.summary.histogram('DigitCaps_layer/capsules', self.caps2.capsules)
+        tf.summary.histogram('DigitCaps_layer/W', self.digitCaps.W)
+        tf.summary.histogram('DigitCaps_layer/biases', self.digitCaps.biases)
+        tf.summary.histogram('DigitCaps_layer/u_hat', self.digitCaps.u_hat)
+        tf.summary.histogram('DigitCaps_layer/c_IJ', self.digitCaps.c_IJ)
+        tf.summary.histogram('DigitCaps_layer/s_J', self.digitCaps.s_J)
+        tf.summary.histogram('DigitCaps_layer/v_J', self.digitCaps.v_J)
+        tf.summary.histogram('DigitCaps_layer/u_produce_v', self.digitCaps.u_produce_v)
+        tf.summary.histogram('DigitCaps_layer/capsules', self.digitCaps.capsules)
 
         tf.summary.scalar('margin_loss', self.margin_loss)
         tf.summary.scalar('reconstruction_loss', self.reconstruction_err)
