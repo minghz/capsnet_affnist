@@ -159,6 +159,7 @@ class CapsNet(object):
         tf.summary.scalar('margin_loss', self.margin_loss)
         tf.summary.scalar('reconstruction_loss', self.reconstruction_err)
         tf.summary.scalar('total_loss', self.total_loss)
+        tf.summary.scalar('accuracy', self.accuracy)
 
         # Reconstructed image
         recon_img = tf.reshape(self.decoded, shape=(cfg.batch_size, 40, 40, 1))
