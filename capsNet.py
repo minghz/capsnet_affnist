@@ -25,6 +25,7 @@ class CapsNet(object):
             self.build_arch()
             self.loss()
             self._summary()
+            self._accuracy()
 
             # t_vars = tf.trainable_variables()
             self.global_step = tf.Variable(0, name='global_step', trainable=False)
@@ -41,21 +42,21 @@ class CapsNet(object):
     def build_arch(self):
         with tf.variable_scope('Conv1_layer'):
             # Conv1, [batch_size, 20, 20, 256]
-            conv1 = tf.contrib.layers.conv2d(self.X, num_outputs=256,
+            self.conv1 = tf.contrib.layers.conv2d(self.X, num_outputs=256,
                                              kernel_size=9, stride=1,
                                              padding='VALID')
-            assert conv1.get_shape() == [cfg.batch_size, 32, 32, 256]
+            assert self.conv1.get_shape() == [cfg.batch_size, 32, 32, 256]
 
         # Primary Capsules layer, return [batch_size, 1152, 8, 1]
         with tf.variable_scope('PrimaryCaps_layer'):
             primaryCaps = CapsLayer(num_outputs=10, vec_len=8, with_routing=False, layer_type='CONV')
-            caps1 = primaryCaps(conv1, kernel_size=9, stride=2)
-            assert caps1.get_shape() == [cfg.batch_size, 1440, 8, 1]
+            self.caps1 = primaryCaps(self.conv1, kernel_size=9, stride=2)
+            assert self.caps1.get_shape() == [cfg.batch_size, 1440, 8, 1]
 
         # DigitCaps layer, return [batch_size, 10, 16, 1]
         with tf.variable_scope('DigitCaps_layer'):
             digitCaps = CapsLayer(num_outputs=10, vec_len=16, with_routing=True, layer_type='FC')
-            self.caps2 = digitCaps(caps1)
+            self.caps2 = digitCaps(self.caps1)
 
         # Decoder structure in Fig. 2
         # 1. Do masking, how:
@@ -137,13 +138,30 @@ class CapsNet(object):
 
     # Summary
     def _summary(self):
-        train_summary = []
-        train_summary.append(tf.summary.scalar('train/margin_loss', self.margin_loss))
-        train_summary.append(tf.summary.scalar('train/reconstruction_loss', self.reconstruction_err))
-        train_summary.append(tf.summary.scalar('train/total_loss', self.total_loss))
-        recon_img = tf.reshape(self.decoded, shape=(cfg.batch_size, 40, 40, 1))
-        train_summary.append(tf.summary.image('reconstruction_img', recon_img))
-        self.train_summary = tf.summary.merge(train_summary)
+        tf.summary.histogram('Conv1_layer/conv1', self.conv1)
+        tf.summary.histogram('PrimaryCaps_layer/unsquashed_capsules', self.caps1.unsquashed_capsules)
+        tf.summary.histogram('PrimaryCaps_layer/capsules', self.caps1.capsules)
 
+        tf.summary.histogram('DigitCaps_layer/W', self.caps2.W)
+        tf.summary.histogram('DigitCaps_layer/biases', self.caps2.biases)
+        tf.summary.histogram('DigitCaps_layer/u_hat', self.caps2.u_hat)
+        tf.summary.histogram('DigitCaps_layer/c_IJ', self.caps2.c_IJ)
+        tf.summary.histogram('DigitCaps_layer/s_J', self.caps2.s_J)
+        tf.summary.histogram('DigitCaps_layer/v_J', self.caps2.v_J)
+        tf.summary.histogram('DigitCaps_layer/u_produce_v', self.caps2.u_produce_v)
+        tf.summary.histogram('DigitCaps_layer/capsules', self.caps2.capsules)
+
+        tf.summary.scalar('margin_loss', self.margin_loss)
+        tf.summary.scalar('reconstruction_loss', self.reconstruction_err)
+        tf.summary.scalar('total_loss', self.total_loss)
+
+        # Reconstructed image
+        recon_img = tf.reshape(self.decoded, shape=(cfg.batch_size, 40, 40, 1))
+        tf.summary.image('reconstruction_img', recon_img)
+
+        self.train_summary = tf.summary.merge_all()
+
+
+    def _accuracy(self):
         correct_prediction = tf.equal(tf.to_int32(self.labels), self.argmax_idx)
         self.accuracy = tf.reduce_sum(tf.cast(correct_prediction, tf.float32))
