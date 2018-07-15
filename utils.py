@@ -3,48 +3,12 @@ import scipy
 import numpy as np
 import tensorflow as tf
 
-import scipy.io as spio
+from loadmat import loadmat
 from config import cfg
 from PIL import Image
 
 
 TOTAL_TRAINING_IMAGES = 60000
-
-
-def loadmat(filename):
-    '''
-    this function should be called instead of direct spio.loadmat
-    as it cures the problem of not properly recovering python dictionaries
-    from mat files. It calls the function check keys to cure all entries
-    which are still mat-objects
-    '''
-    data = spio.loadmat(filename, struct_as_record=False, squeeze_me=True)
-    return _check_keys(data)
-
-
-def _check_keys(dict):
-    '''
-    checks if entries in dictionary are mat-objects. If yes
-    todict is called to change them to nested dictionaries
-    '''
-    for key in dict:
-        if isinstance(dict[key], spio.matlab.mio5_params.mat_struct):
-            dict[key] = _todict(dict[key])
-    return dict
-
-
-def _todict(matobj):
-    '''
-    A recursive function which constructs from matobjects nested dictionaries
-    '''
-    dict = {}
-    for strg in matobj._fieldnames:
-        elem = matobj.__dict__[strg]
-        if isinstance(elem, spio.matlab.mio5_params.mat_struct):
-            dict[strg] = _todict(elem)
-        else:
-            dict[strg] = elem
-    return dict
 
 
 def load_affnist(batch_size, is_training=True):
@@ -113,28 +77,6 @@ def get_batch_data(batch_size, num_threads):
                                   allow_smaller_final_batch=False)
 
     return(X, Y)
-
-
-def save_images(imgs, size, path):
-    '''
-    Args:
-        imgs: [batch_size, image_height, image_width]
-        size: a list with tow int elements, [image_height, image_width]
-        path: the path to save images
-    '''
-    imgs = (imgs + 1.) / 2  # inverse_transform
-    return(scipy.misc.imsave(path, mergeImgs(imgs, size)))
-
-
-def mergeImgs(images, size):
-    h, w = images.shape[1], images.shape[2]
-    imgs = np.zeros((h * size[0], w * size[1], 3))
-    for idx, image in enumerate(images):
-        i = idx % size[1]
-        j = idx // size[1]
-        imgs[j * h:j * h + h, i * w:i * w + w, :] = image
-
-    return imgs
 
 
 # For version compatibility
