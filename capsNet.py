@@ -29,7 +29,8 @@ class CapsNet(object):
 
             # t_vars = tf.trainable_variables()
             self.global_step = tf.Variable(0, name='global_step', trainable=False)
-            self.optimizer = tf.train.AdamOptimizer()
+            #self.optimizer = tf.train.AdamOptimizer()
+            self.optimizer = tf.train.GradientDescentOptimizer(0.01) # uses less memory
             self.train_op = self.optimizer.minimize(self.total_loss, global_step=self.global_step)  # var_list=t_vars)
         else:
             self.X = tf.placeholder(tf.float32, shape=(cfg.batch_size, 40, 40, 1))
