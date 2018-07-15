@@ -7,7 +7,7 @@ from tqdm import tqdm
 from datetime import datetime
 
 from config import cfg
-from utils import load_data
+from load_data import load_data
 from capsNet import CapsNet
 
 RESULTS_DIR = cfg.results + '_' + cfg.centered + '_centered_' + cfg.peppered + '_peppered'

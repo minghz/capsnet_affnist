@@ -7,7 +7,7 @@ E-mail: naturomics.liao@gmail.com
 import tensorflow as tf
 
 from config import cfg
-from utils import get_batch_data
+from load_data import get_batch_data
 from utils import softmax
 from utils import reduce_sum
 from capsLayer import CapsLayer
