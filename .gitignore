@@ -1,6 +1,6 @@
 *__pycache__
 data*
-checkpoint_dir/
+checkpoint_dir*
 .ropeproject
 logdir*
 
