@@ -24,13 +24,12 @@ class CapsNet(object):
 
             self.build_arch()
             self.loss()
-            self._summary()
             self._accuracy()
+            self._summary()
 
             # t_vars = tf.trainable_variables()
             self.global_step = tf.Variable(0, name='global_step', trainable=False)
-            #self.optimizer = tf.train.AdamOptimizer()
-            self.optimizer = tf.train.GradientDescentOptimizer(0.01) # uses less memory
+            self.optimizer = tf.train.AdamOptimizer()
             self.train_op = self.optimizer.minimize(self.total_loss, global_step=self.global_step)  # var_list=t_vars)
         else:
             self.X = tf.placeholder(tf.float32, shape=(cfg.batch_size, 40, 40, 1))
@@ -159,7 +158,7 @@ class CapsNet(object):
         tf.summary.scalar('margin_loss', self.margin_loss)
         tf.summary.scalar('reconstruction_loss', self.reconstruction_err)
         tf.summary.scalar('total_loss', self.total_loss)
-        tf.summary.scalar('accuracy', self.accuracy)
+        tf.summary.scalar('accuracy', self.accuracy / cfg.batch_size)
 
         # Reconstructed image
         recon_img = tf.reshape(self.decoded, shape=(cfg.batch_size, 40, 40, 1))

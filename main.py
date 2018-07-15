@@ -12,7 +12,7 @@ from capsNet import CapsNet
 
 RESULTS_DIR = cfg.results + '_' + cfg.centered + '_centered_' + cfg.peppered + '_peppered'
 CHECKPOINT_DIR = cfg.checkpoint_dir + '_' + cfg.centered + '_centered_' + cfg.peppered + '_peppered'
-LOG_DIR = cfg.logdir + '_' + cfg.centered + '_centered_' + cgf.peppered + '_peppered'
+LOG_DIR = cfg.logdir + '_' + cfg.centered + '_centered_' + cfg.peppered + '_peppered'
 
 def save_to():
     if not os.path.exists(RESULTS_DIR):
