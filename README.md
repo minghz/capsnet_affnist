@@ -6,6 +6,3 @@ Added custom modifications to run with affnist dataset
 
 `../affNIST_data/`
 
-# Obs:
-
-`dist_version/` not used
